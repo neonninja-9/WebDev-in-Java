@@ -1,0 +1,1 @@
+package com.example;import jakarta.persistence.*;@Entity public class Product {@Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;private String name;private double price;protected Product(){}public Product(String n,double p){name=n;price=p;}public Long getId(){return id;}public String getName(){return name;}public double getPrice(){return price;}}

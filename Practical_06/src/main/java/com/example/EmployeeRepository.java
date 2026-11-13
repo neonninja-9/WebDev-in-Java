@@ -1,0 +1,1 @@
+package com.example;import org.springframework.stereotype.Repository;import java.util.*;@Repository public class EmployeeRepository {private final List<Employee> data=new ArrayList<>();public void save(Employee e){data.add(e);}public List<Employee> findAll(){return data;}}

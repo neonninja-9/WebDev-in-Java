@@ -1,0 +1,68 @@
+PRACTICAL 4
+Experiment : Implement JSP actions like include, forward and useBean, and develop a web application combining Servlets and JSP to manage user authentication.
+CODE : 
+// File: User.java  (JavaBean used with <jsp:useBean>)
+package com.example;
+ 
+public class User {
+    private String username;
+ 
+    public User() { }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username =
+            username; }
+}
+ 
+<%-- File: index.jsp  (forward action) --%>
+<jsp:forward page="login.jsp" />
+ 
+<%-- File: header.jsp --%>
+<h3>Advanced Java Lab - Login Portal</h3>
+ 
+<%-- File: footer.jsp --%>
+<p>Logged in successfully.</p>
+ 
+<%-- File: login.jsp  (include directive) --%>
+<%@ include file="header.jsp" %>
+<% String error = (String) request.getAttribute("error"); %>
+<% if (error != null) { %><p style="color:red"><%= error %></p><% } %>
+<form action="auth" method="post">
+  Username: <input type="text" name="username"><br>
+  Password: <input type="password" name="password"><br>
+  <input type="submit" value="Login">
+</form>
+ 
+<%-- File: welcome.jsp  (useBean and include action) --%>
+<jsp:useBean id="user" class="com.example.User" scope="session" />
+<h2>Welcome, <jsp:getProperty name="user" property="username" />!</h2>
+<jsp:include page="footer.jsp" />
+ 
+// File: AuthServlet.java
+package com.example;
+ 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+ 
+@WebServlet("/auth")
+public class AuthServlet extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse
+            res)
+            throws ServletException, IOException {
+        String u = req.getParameter("username");
+        String p = req.getParameter("password");
+ 
+        if ("admin".equals(u) && "1234".equals(p)) {
+            User user = new User();
+            user.setUsername(u);
+            req.getSession().setAttribute("user", user);
+            req.getRequestDispatcher("welcome.jsp").forward(req, res);
+        } else {
+            req.setAttribute("error", "Invalid username or password");
+            req.getRequestDispatcher("login.jsp").forward(req, res);
+        }
+    }
+}
+Output:

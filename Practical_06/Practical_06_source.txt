@@ -1,0 +1,99 @@
+PRACTICAL 6
+Experiment : Demonstrate the IoC (Inversion of Control) principle in Spring and develop a Spring-based application to manage employee data with Dependency Injection.
+CODE : 
+// File: Employee.java
+package com.example;
+ 
+public class Employee {
+    private final int id;
+    private final String name;
+    private final String dept;
+    private final double salary;
+ 
+    public Employee(int id, String name, String dept, double salary) {
+        this.id = id; this.name = name; this.dept = dept; this.salary =
+                salary;
+    }
+    public double getSalary() { return salary; }
+ 
+    @Override
+    public String toString() { return id + " | " + name + " | " + dept
+            + " | " + salary; }
+}
+ 
+// File: EmployeeRepository.java
+package com.example;
+ 
+import org.springframework.stereotype.Repository;
+import java.util.ArrayList;
+import java.util.List;
+ 
+@Repository
+public class EmployeeRepository {
+    private final List<Employee> data = new ArrayList<>();
+ 
+    public void save(Employee e) { data.add(e); }
+    public List<Employee> findAll() { return data; }
+}
+ 
+// File: EmployeeService.java
+package com.example;
+ 
+import org.springframework.stereotype.Service;
+import java.util.List;
+ 
+@Service
+public class EmployeeService {
+    private final EmployeeRepository repo;
+ 
+    // constructor injection
+    public EmployeeService(EmployeeRepository repo) {
+        this.repo = repo;
+    }
+    public void addEmployee(Employee e) { repo.save(e); }
+    public List<Employee> listEmployees() { return repo.findAll(); }
+    public double totalSalary() {
+        return repo.findAll().stream().mapToDouble(Employee::getSalary).sum();
+    }
+}
+ 
+// File: AppConfig.java
+package com.example;
+ 
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+ 
+@Configuration
+@ComponentScan("com.example")
+public class AppConfig { }
+ 
+// File: EmployeeApp.java
+package com.example;
+ 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+ 
+public class EmployeeApp {
+    public static void main(String[] args) {
+        // IoC: the container creates the objects and wires the
+        // dependencies
+        AnnotationConfigApplicationContext ctx =
+                new AnnotationConfigApplicationContext(AppConfig.class);
+ 
+        EmployeeService service = ctx.getBean(EmployeeService.class);
+        System.out.println("employeeService bean created by container: "
+                + ctx.containsBean("employeeService"));
+        System.out.println("Singleton scope (same instance): "
+                + (service == ctx.getBean("employeeService")));
+ 
+        service.addEmployee(new Employee(101, "Gourav", "Development",
+                45000));
+        service.addEmployee(new Employee(102, "Neha", "Testing",
+                38000));
+ 
+        System.out.println("Employee List:");
+        service.listEmployees().forEach(System.out::println);
+        System.out.println("Total salary: " + service.totalSalary());
+        ctx.close();
+    }
+}
+Output:

@@ -1,0 +1,108 @@
+PRACTICAL 5
+Experiment : Implement Dependency Injection (DI) using the Spring framework and configure Spring beans using XML and annotations.
+CODE : 
+// ---------- Part A: XML based configuration ----------
+// File: Address.java
+package com.example;
+ 
+public class Address {
+    private String city;
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+}
+ 
+// File: Student.java
+package com.example;
+ 
+public class Student {
+    private String name;
+    private Address address;
+ 
+    public void setName(String name) { this.name = name; }
+    // setter injection
+    public void setAddress(Address address) { this.address = address; }
+ 
+    public void show() {
+        System.out.println("Student: " + name + ", City: " +
+                address.getCity());
+    }
+}
+ 
+<!-- File: beans.xml -->
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           //www.springframework.org/schema/beans/spring-beans.xsd">
+           http:
+ 
+    <bean id="address" class="com.example.Address">
+        <property name="city" value="Indore" />
+    </bean>
+ 
+    <bean id="student" class="com.example.Student">
+        <property name="name" value="Gourav" />
+        <property name="address" ref="address" />
+    </bean>
+</beans>
+ 
+// ---------- Part B: Annotation based configuration ----------
+// File: Subject.java
+package com.example;
+ 
+import org.springframework.stereotype.Component;
+ 
+@Component
+public class Subject {
+    public String getName() { return "Advanced Java"; }
+}
+ 
+// File: Teacher.java
+package com.example;
+ 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+ 
+@Component
+public class Teacher {
+    @Autowired
+    // dependency injected by Spring
+    private Subject subject;
+ 
+    public void teach() {
+        System.out.println("Teacher teaches: " + subject.getName());
+    }
+}
+ 
+// File: AppConfig.java
+package com.example;
+ 
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+ 
+@Configuration
+@ComponentScan("com.example")
+public class AppConfig { }
+ 
+// File: MainApp.java
+package com.example;
+ 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+ 
+public class MainApp {
+    public static void main(String[] args) {
+        System.out.println("--- XML based configuration ---");
+        ClassPathXmlApplicationContext xml = new
+                ClassPathXmlApplicationContext("beans.xml");
+        xml.getBean("student", Student.class).show();
+        xml.close();
+ 
+        System.out.println("--- Annotation based configuration ---");
+        AnnotationConfigApplicationContext ctx =
+                new AnnotationConfigApplicationContext(AppConfig.class);
+        ctx.getBean(Teacher.class).teach();
+        ctx.close();
+    }
+}
+Output:

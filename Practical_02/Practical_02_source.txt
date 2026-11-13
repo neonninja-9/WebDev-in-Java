@@ -1,0 +1,85 @@
+PRACTICAL 2
+Experiment : Demonstrate the Servlet life cycle methods init(), service() and destroy(), and develop a web application to display user input using Servlets.
+CODE : 
+// File: LifeCycleServlet.java
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+ 
+@WebServlet("/lifecycle")
+public class LifeCycleServlet extends HttpServlet {
+    private int hitCount;
+ 
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        hitCount = 0;
+        System.out.println("init() called - servlet initialised");
+    }
+ 
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse
+            res) throws IOException {
+        hitCount++;
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+        out.println("<html><body>");
+        out.println("<h2>Servlet Life Cycle Demo</h2>");
+        out.println("<p>doGet() called through service()</p>");
+        out.println("<p>Number of requests so far: " + hitCount +
+                "</p>");
+        out.println("</body></html>");
+        System.out.println("service()/doGet() called - request #" +
+                hitCount);
+    }
+ 
+    @Override
+    public void destroy() {
+        System.out.println("destroy() called - servlet removed from service");
+    }
+}
+ 
+<!-- File: register.html -->
+<html>
+<body>
+  <h2>Student Registration</h2>
+  <form action="register" method="post">
+    Name: <input type="text" name="name"><br><br>
+    Email: <input type="email" name="email"><br><br>
+    Course:
+    <select name="course">
+      <option>B.Tech CSE</option>
+      <option>B.Tech IT</option>
+    </select><br><br>
+    <input type="submit" value="Register">
+  </form>
+</body>
+</html>
+ 
+// File: RegisterServlet.java
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+ 
+@WebServlet("/register")
+public class RegisterServlet extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse
+            res) throws IOException {
+        String name   = req.getParameter("name");
+        String email  = req.getParameter("email");
+        String course = req.getParameter("course");
+ 
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+        out.println("<h2>Registration Successful</h2>");
+        out.println("<p>Name   : " + name + "</p>");
+        out.println("<p>Email  : " + email + "</p>");
+        out.println("<p>Course : " + course + "</p>");
+    }
+}
+Output:

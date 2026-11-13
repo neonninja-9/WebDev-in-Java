@@ -1,0 +1,70 @@
+PRACTICAL 10
+Experiment : Deploy a Spring Boot application to a local Tomcat server, monitor and manage it using Spring Boot Actuator, and configure logging levels and monitor application performance.
+CODE : 
+<!-- File: pom.xml (changes for WAR deployment and Actuator) -->
+<packaging>war</packaging>
+<build>
+  <finalName>lab</finalName>
+</build>
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-tomcat</artifactId>
+    <scope>provided</scope>
+  </dependency>
+</dependencies>
+ 
+# File: application.properties
+management.endpoints.web.exposure.include=health,info,metrics,loggers
+logging.level.root=INFO
+logging.level.com.example=INFO
+ 
+// File: LabApplication.java
+package com.example;
+ 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+ 
+@SpringBootApplication
+public class LabApplication extends SpringBootServletInitializer {
+ 
+    @Override
+    protected SpringApplicationBuilder
+            configure(SpringApplicationBuilder builder) {
+        // needed for external Tomcat
+        return builder.sources(LabApplication.class);
+    }
+ 
+    public static void main(String[] args) {
+        SpringApplication.run(LabApplication.class, args);
+    }
+}
+ 
+// File: HomeController.java
+package com.example;
+ 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+ 
+@RestController
+public class HomeController {
+    @GetMapping("/")
+    public String home() { return "Spring Boot WAR deployed on Tomcat";
+            }
+}
+ 
+// Steps: mvn clean package -> copy target/lab.war to
+// $CATALINA_HOME/webapps
+//localhost:8080/lab/actuator/health
+//        -> start Tomcat -> open http:
+Output:

@@ -1,0 +1,1 @@
+package com.example;public class Employee {private final int id;private final String name,dept;private final double salary;public Employee(int id,String name,String dept,double salary){this.id=id;this.name=name;this.dept=dept;this.salary=salary;}public double getSalary(){return salary;}public String toString(){return id+" | "+name+" | "+dept+" | "+salary;}}

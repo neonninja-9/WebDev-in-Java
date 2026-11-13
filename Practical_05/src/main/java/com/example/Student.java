@@ -1,0 +1,1 @@
+package com.example; public class Student {private String name;private Address address;public void setName(String name){this.name=name;}public void setAddress(Address address){this.address=address;}public void show(){System.out.println("Student: "+name+", City: "+address.getCity());}}

@@ -1,0 +1,58 @@
+PRACTICAL 1
+Experiment : Create a simple Servlet to handle HTTP requests and responses, and implement the doGet() and doPost() methods to handle different types of requests.
+CODE : 
+<!-- File: form.html -->
+<html>
+<body>
+  <h2>HTTP Request Demo</h2>
+  <form action="http" method="post">
+    Name: <input type="text" name="name"><br><br>
+    Message: <input type="text" name="message"><br><br>
+    <input type="submit" value="Send (POST)">
+  </form>
+  <a href="http?name=Gourav">Send GET request</a>
+</body>
+</html>
+ 
+// File: HttpDemoServlet.java
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+ 
+@WebServlet("/http")
+public class HttpDemoServlet extends HttpServlet {
+ 
+    // Handles HTTP GET requests (data arrives in the URL)
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse
+            res) throws IOException {
+        String name = req.getParameter("name");
+        if (name == null) name = "Guest";
+ 
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+        out.println("<h2>Hello, " + name + "</h2>");
+        out.println("<p>Request method : " + req.getMethod() + "</p>");
+        out.println("<p>Request URI    : " + req.getRequestURI() +
+                "</p>");
+        out.println("<p>Query string   : " + req.getQueryString() +
+                "</p>");
+    }
+ 
+    // Handles HTTP POST requests (data arrives in the request body)
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse
+            res) throws IOException {
+        String name = req.getParameter("name");
+        String message = req.getParameter("message");
+ 
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+        out.println("<h2>POST request received</h2>");
+        out.println("<p>Name    : " + name + "</p>");
+        out.println("<p>Message : " + message + "</p>");
+        out.println("<p>Request method : " + req.getMethod() + "</p>");
+    }
+}
+Output:

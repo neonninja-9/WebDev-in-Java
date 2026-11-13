@@ -1,0 +1,1 @@
+package com.example;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.stereotype.Component;@Component public class Teacher {@Autowired private Subject subject;public void teach(){System.out.println("Teacher teaches: "+subject.getName());}}

@@ -1,0 +1,70 @@
+PRACTICAL 7
+Experiment : Create a simple Spring MVC application with controllers and views, and define @RequestMapping for handling HTTP requests.
+CODE : 
+// File: WebConfig.java
+import org.springframework.context.annotation.*;
+import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
+ 
+@Configuration
+@EnableWebMvc
+@ComponentScan("com.example")
+public class WebConfig implements WebMvcConfigurer {
+    @Bean
+    public InternalResourceViewResolver viewResolver() {
+        InternalResourceViewResolver vr = new
+                InternalResourceViewResolver();
+        vr.setPrefix("/WEB-INF/views/");
+        vr.setSuffix(".jsp");
+        return vr;
+    }
+}
+ 
+// File: AppInitializer.java
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
+ 
+public class AppInitializer extends
+        AbstractAnnotationConfigDispatcherServletInitializer {
+    protected Class<?>[] getRootConfigClasses()    { return null; }
+    protected Class<?>[] getServletConfigClasses() { return new
+            Class<?>[] { WebConfig.class }; }
+    protected String[]   getServletMappings()      { return new
+            String[] { "/" }; }
+}
+ 
+// File: HelloController.java
+package com.example;
+ 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+ 
+@Controller
+@RequestMapping("/app")
+public class HelloController {
+ 
+    @RequestMapping(value = "/greet", method = RequestMethod.GET)
+    public String greet(@RequestParam(defaultValue = "Student") String
+            name, Model model) {
+        model.addAttribute("message", "Welcome to Spring MVC, " + name
+                + "!");
+        // resolves to /WEB-INF/views/greet.jsp
+        return "greet";
+    }
+ 
+    @RequestMapping(value = "/about", method = RequestMethod.GET)
+    public String about(Model model) {
+        model.addAttribute("message",
+                "Advanced Java Programming Lab - Spring MVC");
+        return "greet";
+    }
+}
+ 
+<%-- File: /WEB-INF/views/greet.jsp --%>
+<%@ page contentType="text/html; charset=UTF-8" %>
+<html>
+<body>
+  <h2>${message}</h2>
+</body>
+</html>
+Output:

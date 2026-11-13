@@ -1,0 +1,115 @@
+PRACTICAL 9
+Experiment : Implement caching using Spring Boot annotations, integrate Spring Data JPA for database operations and implement logging using the Spring Boot logging framework.
+CODE : 
+# File: application.properties
+spring.datasource.url=jdbc:h2:mem:shopdb
+spring.jpa.hibernate.ddl-auto=update
+logging.level.com.example=DEBUG
+logging.file.name=app.log
+logging.pattern.file=%d{HH:mm:ss} %-5level %logger{20} - %msg%n
+ 
+// File: Product.java
+package com.example;
+ 
+import jakarta.persistence.*;
+ 
+@Entity
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private double price;
+ 
+    public Product() { }
+    public Product(String name, double price) { this.name = name;
+            this.price = price; }
+ 
+    public Long getId() { return id; }
+    public String getName() { return name; }
+    public double getPrice() { return price; }
+}
+ 
+// File: ProductRepository.java
+package com.example;
+ 
+import org.springframework.data.jpa.repository.JpaRepository;
+ 
+public interface ProductRepository extends JpaRepository<Product, Long>
+        { }
+ 
+// File: ProductService.java
+package com.example;
+ 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+ 
+@Service
+public class ProductService {
+    private static final Logger log =
+            LoggerFactory.getLogger(ProductService.class);
+    private final ProductRepository repo;
+ 
+    public ProductService(ProductRepository repo) { this.repo = repo; }
+ 
+    @Cacheable("products")
+    public Product getProduct(Long id) {
+        log.info("Fetching product {} from database", id);
+        return repo.findById(id).orElseThrow();
+    }
+}
+ 
+// File: ProductController.java
+package com.example;
+ 
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+ 
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+    private final ProductService service;
+    private final ProductRepository repo;
+ 
+    public ProductController(ProductService service, ProductRepository
+            repo) {
+        this.service = service;
+        this.repo = repo;
+    }
+ 
+    @GetMapping
+    public List<Product> all() { return repo.findAll(); }
+ 
+    @GetMapping("/{id}")
+    public Product one(@PathVariable Long id) { return
+            service.getProduct(id); }
+}
+ 
+// File: ShopApplication.java
+package com.example;
+ 
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
+ 
+@SpringBootApplication
+@EnableCaching
+public class ShopApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ShopApplication.class, args);
+    }
+ 
+    @Bean
+    CommandLineRunner seed(ProductRepository repo) {
+        return args -> {
+            repo.save(new Product("Laptop", 55000));
+            repo.save(new Product("Phone", 22000));
+            repo.save(new Product("Tablet", 18000));
+        };
+    }
+}
+Output:
